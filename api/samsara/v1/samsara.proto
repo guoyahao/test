@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package api.samsara.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "SamsaraCoinServer/api/samsara/v1;v1";
+
+service Samsara {
+  rpc ListCoinFlow (ListCoinFlowRequest) returns (ListCoinFlowReply){
+    option(google.api.http) = {
+      post: "/api/v1/samsara/coinflow/list"
+      body:"*"
+    };
+  };
+  rpc InfoCoin(InfoCoinRequest) returns (InfoCoinReply){
+    option(google.api.http) = {
+      post: "/api/v1/samsara/coin/info"
+      body:"*"
+    };
+  };
+  rpc OperateCoin (OperateCoinRequest) returns (OperateCoinReply){
+    option(google.api.http) = {
+      post: "/api/v1/samsara/coin/operate"
+      body:"*"
+    };
+  };
+}
+
+message ListCoinFlowRequest {
+  int64 uid = 1  [(validate.rules).int64.gt = 0];
+  int32 page = 2 [(validate.rules).int32.gt = 0];
+  int32 pageSize = 3 [(validate.rules).int32.gt = 0];
+}
+
+message ListCoinFlowReply {
+  int64 code = 1;
+  string reason = 2;
+  message CoinFlowList{
+    message CoinFlow {
+      optional int64 id = 1;
+      optional int64 uid = 2;
+      optional int32 type = 3;
+      optional int64 funds = 4;
+      optional string created_at = 5;
+    }
+    repeated CoinFlow info = 1;
+    int32 total = 2;
+  }
+  optional CoinFlowList message = 3;
+}
+
+
+message InfoCoinRequest {
+  int64 uid = 1  [(validate.rules).int64.gt = 0];
+}
+
+message InfoCoinReply {
+  int64 code = 1;
+  string reason = 2;
+  message Coin {
+    optional int64 id = 1;
+    optional int64 uid = 2;
+    optional int32 status = 3;
+    optional int64 balance = 4;
+    optional string created_at = 5;
+  }
+  optional Coin message = 3;
+}
+
+message OperateCoinRequest {
+  int64 uid = 1;
+  int32 coinType = 2 [(validate.rules).int32 = {in: [1, 2, 3]}];
+  int64 funds = 3;
+}
+
+message OperateCoinReply {
+  int64 code = 1;
+  string reason = 2;
+}
